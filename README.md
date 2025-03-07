@@ -1,10 +1,12 @@
-# Inner Thoughts AI
+# Agents with Inner Thoughts 💭
 
 A framework for modeling agent thoughts and conversations, enabling more natural and human-like interactions between AI agents and humans.
 
 ## Overview
 
 Inner Thoughts AI provides a structured approach to modeling the internal thought processes of AI agents during conversations. Rather than simply predicting conversational turns, this framework enables proactive AI driven by its own internal "thoughts".
+
+This framework is based on the paper [Proactive Conversational Agents with Inner Thoughts](https://arxiv.org/pdf/2501.00383), published at [CHI 2025](https://doi.org/10.1145/3706598.3713760).
 
 Inspired by cognitive architectures and LLM prompting techniques, the framework comprises five stages:
 1. **Trigger** - Initiating the thought process
@@ -23,8 +25,6 @@ The framework includes:
 - Proactivity configuration for agents
 
 ## Research Background
-
-This work is published at [CHI 2025](https://arxiv.org/pdf/2501.00383).
 
 Most current LLM-based systems treat AI as passive respondents, responding only to explicit human prompts. The Inner Thoughts framework takes an alternative approach inspired by human cognition, where we process others' words, reflect on our experiences, and develop an internal train of thoughts before deciding to participate.
 
@@ -141,3 +141,7 @@ If you use this framework in your research, please cite:
     doi = {10.1145/3706598.3713760},
 }
 ```
+
+## Contact
+
+For questions or feedback, please feel free to reach out to [Xingyu Bruce Liu](https://liubruce.me/)!
