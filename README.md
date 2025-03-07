@@ -24,6 +24,8 @@ The framework includes:
 
 ## Research Background
 
+This work is published at [CHI 2025](https://arxiv.org/pdf/2501.00383).
+
 Most current LLM-based systems treat AI as passive respondents, responding only to explicit human prompts. The Inner Thoughts framework takes an alternative approach inspired by human cognition, where we process others' words, reflect on our experiences, and develop an internal train of thoughts before deciding to participate.
 
 This approach models the distinction between *covert responses* (internal thoughts and feelings) and *overt responses* (verbal utterances) in human communication. The AI participant determines whether to engage based on an evaluation of its intrinsic motivation to express a particular thought at that moment.
@@ -125,10 +127,17 @@ This project is licensed under the Apache 2.0 License - see the LICENSE file for
 If you use this framework in your research, please cite:
 
 ```
-@inproceedings{liu2023innerthoughts,
-  title={Inner Thoughts: Building Proactive Conversational AI Through Modeling Intrinsic Motivation},
-  author={Liu, Bruce and Shi, Wenyi and Wang, Jiacheng and Bernstein, Michael S.},
-  booktitle={Proceedings of the ACM Conference on Human Factors in Computing Systems},
-  year={2024}
+@inproceedings{liu2025inner,
+    title={Proactive Conversational Agents with Inner Thoughts},
+    author={Liu, Xingyu Bruce and Fang, Shitao and Shi, Weiyan and Wu, Chien-Sheng and Igarashi, Takeo and Chen, Xiang Anthony},
+    booktitle = {Proceedings of the 2025 CHI Conference on Human Factors in Computing Systems},
+    year = {2025},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    location = {Yokohama, Japan},
+    series = {CHI '25},
+    keywords = {Full},    
+    url = {https://doi.org/10.1145/3706598.3713760},
+    doi = {10.1145/3706598.3713760},
 }
 ```
