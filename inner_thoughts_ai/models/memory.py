@@ -1,8 +1,39 @@
 from typing import List, Optional
 
-class Memory:
-    """Memory class as specified in the UML design."""
-    pass
+from inner_thoughts_ai.models.mental_object import MentalObject
+from inner_thoughts_ai.models.enums import MentalObjectType
+
+class Memory(MentalObject):
+    """Memory class that inherits from MentalObject."""
+    
+    # Class variable to keep track of the next available Memory ID
+    _next_memory_id = 0
+    
+    def __init__(
+        self,
+        agent_id: int,
+        type: MentalObjectType,
+        content: str,
+        turn_number: int,
+        last_accessed_turn: int,
+        id: Optional[str] = None,
+        **kwargs
+    ):
+        # Generate a Memory-specific ID if not provided
+        if id is None:
+            id = f"{Memory._next_memory_id}"
+            Memory._next_memory_id += 1
+            
+        super().__init__(
+            id=id,
+            agent_id=agent_id,
+            type=type,
+            content=content,
+            turn_number=turn_number,
+            last_accessed_turn=last_accessed_turn,
+            **kwargs
+        )
+        # Additional memory-specific attributes can be added here
 
 class MemoryStore:
     def __init__(self):
@@ -11,18 +42,39 @@ class MemoryStore:
     
     def add(self, memory: Memory) -> None:
         """Add a memory to the appropriate store."""
-        if memory.type == "long_term":
+        if memory.type == MentalObjectType.MEMORY_LONG_TERM:
             self.long_term_memory.append(memory)
-        else:
+        elif memory.type == MentalObjectType.MEMORY_SHORT_TERM:
             self.short_term_memory.append(memory)
     
     def remove(self, memory: Memory) -> None:
-        """Remove a memory from the store."""
-        if memory.type == "long_term":
+        """Remove a memory from the appropriate store."""
+        if memory.type == MentalObjectType.MEMORY_LONG_TERM:
             self.long_term_memory.remove(memory)
-        else:
+        elif memory.type == MentalObjectType.MEMORY_SHORT_TERM:
             self.short_term_memory.remove(memory)
     
-    def retrieve_top_k(self, k: int, by: str = "saliency", type: str = "long_term") -> List[Memory]:
-        """Retrieve top k memories based on the specified attribute."""
-        pass 
+    def retrieve_top_k(self, k: int, threshold: float = 0.3, memory_type: MentalObjectType = MentalObjectType.MEMORY_LONG_TERM) -> List[Memory]:
+        """Retrieve top k memories based on the saliency score, that are at least above the threshold."""
+        if memory_type == MentalObjectType.MEMORY_LONG_TERM:
+            memories = self.long_term_memory
+        elif memory_type == MentalObjectType.MEMORY_SHORT_TERM:
+            memories = self.short_term_memory
+        else:
+            memories = self.long_term_memory + self.short_term_memory
+        memories = sorted(memories, key=lambda x: x.saliency, reverse=True)
+        return [memory for memory in memories if memory.saliency >= threshold][:k]
+    
+    def get_by_id(self, memory_id: str) -> Optional[Memory]:
+        """Get a memory by its ID."""
+        # Search in long-term memory
+        for memory in self.long_term_memory:
+            if memory.id == memory_id:
+                return memory
+                
+        # Search in short-term memory
+        for memory in self.short_term_memory:
+            if memory.id == memory_id:
+                return memory
+                
+        return None

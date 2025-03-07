@@ -4,12 +4,29 @@ A framework for modeling agent thoughts and conversations, enabling more natural
 
 ## Overview
 
-Inner Thoughts AI provides a structured approach to modeling the internal thought processes of AI agents during conversations. The framework includes:
+Inner Thoughts AI provides a structured approach to modeling the internal thought processes of AI agents during conversations. Rather than simply predicting conversational turns, this framework enables proactive AI driven by its own internal "thoughts".
 
+Inspired by cognitive architectures and LLM prompting techniques, the framework comprises five stages:
+1. **Trigger** - Initiating the thought process
+2. **Retrieval** - Accessing relevant memories and context
+3. **Thought Formation** - Generating potential thoughts
+4. **Evaluation** - Assessing intrinsic motivation to express thoughts
+5. **Participation** - Deciding when and how to engage in conversation
+
+The framework includes:
+- Thinking engine for thought generation and evaluation
+- System 1 (fast, automatic) and System 2 (slow, deliberate) thinking
 - Mental object management (thoughts, memories)
-- Conversation and event tracking
-- Turn-taking prediction
 - Saliency-based memory and thought retrieval
+- Conversation and event tracking
+- Turn-taking prediction and engine for determining when and who should speak next
+- Proactivity configuration for agents
+
+## Research Background
+
+Most current LLM-based systems treat AI as passive respondents, responding only to explicit human prompts. The Inner Thoughts framework takes an alternative approach inspired by human cognition, where we process others' words, reflect on our experiences, and develop an internal train of thoughts before deciding to participate.
+
+This approach models the distinction between *covert responses* (internal thoughts and feelings) and *overt responses* (verbal utterances) in human communication. The AI participant determines whether to engage based on an evaluation of its intrinsic motivation to express a particular thought at that moment.
 
 ## Installation
 
@@ -42,18 +59,76 @@ export OPENAI_API_KEY=your_api_key_here
 The project is organized as follows:
 
 - `inner_thoughts_ai/models/`: Core model classes
-  - `mental_object.py`: Base class for mental objects
-  - `saliency.py`: Saliency computation
-  - `turn_taking.py`: Turn-taking prediction
-  - `conversation.py`: Conversation and Event classes
-  - `enums.py`: Enumeration types
-  - `memory.py`: Memory-related classes
   - `participant.py`: Participant, Human, and Agent classes
   - `thought.py`: Thought-related classes
+  - `memory.py`: Memory-related classes
+  - `conversation.py`: Conversation and Event classes
+  - `mental_object.py`: Base class for mental objects
+  - `enums.py`: Enumeration types
 - `inner_thoughts_ai/utils/`: Utility functions
-  - `text_splitter.py`: Text splitting using spaCy
   - `llm_api.py`: OpenAI API interaction
+  - `saliency.py`: Saliency computation
+  - `thinking_engine.py`: Functions for thought generation, evaluation, and articulation
+  - `turn_taking_engine.py`: Turn-taking prediction 
+  - `text_splitter.py`: Text splitting using spaCy
+
+## Key Components
+
+### Participants
+
+The framework models different types of conversation participants:
+- `Participant`: Base class for all conversation participants
+- `Human`: Represents human participants in the conversation
+- `Agent`: AI agents that can generate thoughts, evaluate them, and decide when to participate
+
+### Thoughts and Memory
+
+Both `Thought` and `Memory` are subclasses of `MentalObject`.
+The framework distinguishes between:
+- `Thought`: Temporary mental objects representing current thinking
+- `Memory`: Longer-term mental objects stored for future retrieval
+
+They are managed through the `ThoughtReservoir` and `MemoryStore` classes respectively.
+
+### Conversation and Events
+
+The `Conversation` class manages the overall conversation state, while `Event` objects represent individual utterances or any other actions within the conversation.
+
+### Mental Objects
+
+The `MentalObject` class serves as the base for all mental entities in the system. It includes attributes like content, embedding, saliency, and weight that determine how important and relevant the object is in a given context.
+
+### Thinking Engine
+
+The thinking engine is responsible for:
+- Generating System 1 (fast, intuitive) thoughts
+- Generating System 2 (slow, deliberate) thoughts
+- Evaluating thoughts for their intrinsic motivation
+- Articulating selected thoughts as utterances
+
+### Turn-Taking
+
+The turn-taking engine predicts appropriate moments for participation and decides which agent should speak next based on their intrinsic motivation scores.
+
+
+## Usage Example
+
+*Work in progress.* 🚧
+
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
+
+## Citation
+
+If you use this framework in your research, please cite:
+
+```
+@inproceedings{liu2023innerthoughts,
+  title={Inner Thoughts: Building Proactive Conversational AI Through Modeling Intrinsic Motivation},
+  author={Liu, Bruce and Shi, Wenyi and Wang, Jiacheng and Bernstein, Michael S.},
+  booktitle={Proceedings of the ACM Conference on Human Factors in Computing Systems},
+  year={2024}
+}
+```
