@@ -1,4 +1,4 @@
-# Agents with Inner Thoughts 💭
+# Proactive Agents with Inner Thoughts 💭
 
 A framework for modeling agent thoughts and conversations, enabling more natural and human-like interactions between AI agents and humans.
 
@@ -8,6 +8,8 @@ Inner Thoughts AI provides a structured approach to modeling the internal though
 
 This framework is based on the paper [Proactive Conversational Agents with Inner Thoughts](https://arxiv.org/pdf/2501.00383), published at [CHI 2025](https://doi.org/10.1145/3706598.3713760).
 
+![Inner Thoughts Framework Architecture](assets/images/framework_architecture.png)
+
 Inspired by cognitive architectures and LLM prompting techniques, the framework comprises five stages:
 1. **Trigger** - Initiating the thought process
 2. **Retrieval** - Accessing relevant memories and context
@@ -15,7 +17,7 @@ Inspired by cognitive architectures and LLM prompting techniques, the framework 
 4. **Evaluation** - Assessing intrinsic motivation to express thoughts
 5. **Participation** - Deciding when and how to engage in conversation
 
-The framework includes:
+The Python implementation includes:
 - Thinking engine for thought generation and evaluation
 - System 1 (fast, automatic) and System 2 (slow, deliberate) thinking
 - Mental object management (thoughts, memories)
@@ -112,11 +114,27 @@ The thinking engine is responsible for:
 
 The turn-taking engine predicts appropriate moments for participation and decides which agent should speak next based on their intrinsic motivation scores.
 
+### Proactivity Configuration
+
+Inner Thoughts offers fine-grained control over AI conversation participation through three proactivity layers:
+
+1. **Overt Proactivity**: Controls conversation engagement tendency via the `system1Prob` parameter (0-1).
+
+2. **Covert Proactivity**: Sets motivation threshold for expression using the `imThreshold` parameter (1-5).
+
+3. **Tonal Proactivity**: Adjusts language assertiveness with the `proactiveTone` parameter (true/false).
+
+The framework also supports **interruption** through the `interruptThreshold` parameter (1-5), allowing AIs to override turn allocation when highly motivated.
+
+To determine when and how the AI participates:
+- For open turns: AI speaks if motivation exceeds threshold
+- For allocated turns: AI uses highest-rated thought
+- For others' turns: AI interrupts only with sufficient motivation
+
 
 ## Usage Example
 
 *Work in progress.* 🚧
-
 
 ## License
 
