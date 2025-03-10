@@ -1,12 +1,15 @@
-from typing import List, Union, Optional, Dict
+from typing import List, Union, Optional, Dict, TYPE_CHECKING
+import uuid
 
-from inner_thoughts_ai.models.conversation import Event
 from inner_thoughts_ai.models.enums import MentalObjectType
 from inner_thoughts_ai.models.mental_object import MentalObject
 
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    from inner_thoughts_ai.models.conversation import Event
+
 class Thought(MentalObject):
-    # Class variable to keep track of the next available Thought ID
-    _next_thought_id = 0
+    # _next_thought_id class variable removed as we're switching to UUID
     
     def __init__(
         self,
@@ -17,13 +20,10 @@ class Thought(MentalObject):
         last_accessed_turn: int,
         intrinsic_motivation: Dict[str, Union[str, float]],
         stimuli: List[Union[MentalObject, 'Event']],
-        id: Optional[str] = None,
         **kwargs
     ):
-        # Generate a Thought-specific ID if not provided
-        if id is None:
-            id = f"{Thought._next_thought_id}"
-            Thought._next_thought_id += 1
+        # Always generate a UUID
+        id = str(uuid.uuid4())
             
         super().__init__(
             id=id,
@@ -36,6 +36,7 @@ class Thought(MentalObject):
         )
         self.intrinsic_motivation = intrinsic_motivation
         self.stimuli = stimuli
+        self.selected = False  # Track whether this thought has been selected for articulation
 
 class ThoughtReservoir:
     def __init__(self):
@@ -59,6 +60,10 @@ class ThoughtReservoir:
             thoughts = self.thoughts
         thoughts = sorted(thoughts, key=lambda x: x.saliency, reverse=True)
         return [thought for thought in thoughts if thought.saliency >= threshold][:k]
+    
+    def get_selected_thoughts(self) -> List[Thought]:
+        """Get all thoughts that have been selected for articulation."""
+        return [thought for thought in self.thoughts if thought.selected]
     
     def get_by_id(self, thought_id: str) -> Optional[Thought]:
         """Get a thought by its ID."""

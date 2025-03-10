@@ -18,7 +18,7 @@ Inspired by cognitive architectures and LLM prompting techniques, the framework 
 5. **Participation** - Deciding when and how to engage in conversation
 
 The Python implementation includes:
-- Thinking engine for thought generation and evaluation
+- Thinking engine for thought generation, evaluation, selection, and articulation
 - System 1 (fast, automatic) and System 2 (slow, deliberate) thinking
 - Mental object management (thoughts, memories)
 - Saliency-based memory and thought retrieval
@@ -75,6 +75,9 @@ The project is organized as follows:
   - `thinking_engine.py`: Functions for thought generation, evaluation, and articulation
   - `turn_taking_engine.py`: Turn-taking prediction 
   - `text_splitter.py`: Text splitting using spaCy
+- `examples/`: Example implementations
+  - `hello_world.py`: Simple example with multiple agents in conversation
+  - `ai_thought_process_example.py`: Detailed example showing the AI's thought process
 
 ## Key Components
 
@@ -104,11 +107,11 @@ The `MentalObject` class serves as the base for all mental entities in the syste
 
 ### Thinking Engine
 
-The thinking engine is responsible for:
-- Generating System 1 (fast, intuitive) thoughts
-- Generating System 2 (slow, deliberate) thoughts
-- Evaluating thoughts for their intrinsic motivation
-- Articulating selected thoughts as utterances
+Key functions in `thinking_engine.py` include:
+- `generate_system1_thought()`: Creates quick, intuitive thoughts based on immediate context
+- `generate_system2_thoughts()`: Produces deliberate, reflective thoughts with deeper reasoning
+- `evaluate_thought()`: Assesses thoughts and assigns intrinsic motivation scores (1-5)
+- `articulate_thought()`: Transforms internal thoughts into natural language utterances
 
 ### Turn-Taking
 
@@ -118,23 +121,85 @@ The turn-taking engine predicts appropriate moments for participation and decide
 
 Inner Thoughts offers fine-grained control over AI conversation participation through three proactivity layers:
 
-1. **Overt Proactivity**: Controls conversation engagement tendency via the `system1Prob` parameter (0-1).
+1. **Overt Proactivity**: Controls conversation engagement tendency via the `system1_prob` parameter (0-1).
 
-2. **Covert Proactivity**: Sets motivation threshold for expression using the `imThreshold` parameter (1-5).
+2. **Covert Proactivity**: Sets motivation threshold for expression using the `im_threshold` parameter (1-5).
 
-3. **Tonal Proactivity**: Adjusts language assertiveness with the `proactiveTone` parameter (true/false).
+3. **Tonal Proactivity**: Adjusts language assertiveness with the `proactive_tone` parameter (true/false).
 
-The framework also supports **interruption** through the `interruptThreshold` parameter (1-5), allowing AIs to override turn allocation when highly motivated.
+The framework also supports **interruption** through the `interrupt_threshold` parameter (1-5), allowing AIs to override turn allocation when highly motivated.
 
 To determine when and how the AI participates:
 - For open turns: AI speaks if motivation exceeds threshold
 - For allocated turns: AI uses highest-rated thought
 - For others' turns: AI interrupts only with sufficient motivation
 
+## Usage Examples
 
-## Usage Example
+### Basic Example
 
-*Work in progress.* 🚧
+The `hello_world.py` example demonstrates a simple conversation between multiple AI agents:
+
+```python
+# Create a conversation with a simple context
+conversation = Conversation(context="A friendly chat between Alice and Bob.")
+
+# Create agents with specific proactivity configurations
+alice = Agent(name="Alice", proactivity_config={
+    'im_threshold': 3.2, 
+    'system1_prob': 0.3,
+    'interrupt_threshold': 4.5
+})
+
+bob = Agent(name="Bob", proactivity_config={
+    'im_threshold': 3.2,
+    'system1_prob': 0.3,
+    'interrupt_threshold': 4.5
+})
+
+# Add background knowledge to the agents
+alice.initialize_memory("I am a software engineer who likes to code.")
+bob.initialize_memory("I am a cognitive scientist who works on understanding the human mind.")
+
+# Add agents to the conversation
+conversation.add_participant(alice)
+conversation.add_participant(bob)
+
+# Alice starts the conversation
+await alice.send_message("I'm recently thinking about adopting a cat. What do you think about this?", conversation)
+
+# Use the turn-taking engine to decide who speaks next
+next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)
+```
+
+### Detailed Thought Process Example
+
+The `ai_thought_process_example.py` provides a more detailed look at the AI's internal thought process:
+
+```python
+# Create a human and an AI agent
+human = Human(name="Human")
+ai_agent = Agent(name="AI Assistant", proactivity_config={
+    'im_threshold': 3.2,
+    'system1_prob': 0.3,
+    'interrupt_threshold': 4.5
+})
+
+# Human starts the conversation
+human_event = await human.send_message("How are AI agents designed to participate in conversations?", conversation)
+
+# AI thinking process
+await ai_agent.recalibrate_saliency_for_event(human_event)
+ai_agent.add_event_to_memory(human_event)
+new_thoughts = await ai_agent.generate_thoughts(conversation, num_system1=1, num_system2=2)
+await ai_agent.evaluate_thoughts(new_thoughts, conversation)
+
+# AI selects and articulates thoughts
+selected_thoughts = await ai_agent.select_thoughts(new_thoughts, conversation)
+if selected_thoughts:
+    ai_response = await ai_agent.articulate_thought(selected_thoughts[0], conversation)
+    await ai_agent.send_message(ai_response, conversation)
+```
 
 ## License
 

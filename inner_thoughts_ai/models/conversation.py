@@ -1,7 +1,8 @@
 from typing import List, Dict, Optional, Union, TYPE_CHECKING
-import asyncio
 import numpy as np
 from numpy.typing import NDArray
+import uuid
+import asyncio
 
 from inner_thoughts_ai.models.enums import EventType
 from inner_thoughts_ai.utils.llm_api import get_completion, get_embedding_sync, get_embedding_async
@@ -9,11 +10,8 @@ from inner_thoughts_ai.utils.llm_api import get_completion, get_embedding_sync, 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
     from inner_thoughts_ai.models.participant import Participant
-    from inner_thoughts_ai.models.thought import Thought
 
 class Event:
-    # Class variable to keep track of the next available ID
-    _next_id = 0
     
     def __init__(
         self,
@@ -27,15 +25,10 @@ class Event:
         pred_next_turn: str = "",
         embedding: Optional[Union[NDArray[np.float32], List[float]]] = None,
         interpretation_embedding: Optional[Union[NDArray[np.float32], List[float]]] = None,
-        compute_embedding: bool = True,
-        id: Optional[str] = None
+        compute_embedding: bool = True
     ):
-        # If ID is not provided, use the next available ID
-        if id is None:
-            self.id = str(Event._next_id)
-            Event._next_id += 1
-        else:
-            self.id = id
+        # Always generate a UUID
+        self.id = str(uuid.uuid4())
             
         # Simple attributes that don't need validation
         self.participant_id = participant_id
@@ -116,6 +109,7 @@ class Conversation:
         """Remove a participant from the conversation."""
         self.participants.remove(participant)
     
+
     def record_event(self, event: Event) -> None:
         """Record an event in the conversation history."""
         # Set the participant_name if it's still the default "Unknown"
@@ -127,11 +121,7 @@ class Conversation:
         
         self.event_history.append(event)
         self.turn_number += 1
-        
-    async def broadcast_event(self) -> None:
-        """Broadcast the last event to all participants and let them think."""
-        for participant in self.participants:
-            await participant.think(self)
+
     
     async def interpret_event(self, event: Event) -> str:
         """Generate an interpretation for an event.
@@ -146,17 +136,17 @@ class Conversation:
         if event.type != EventType.UTTERANCE:
             return ""
             
-        # Get the last 5 events for context
+        # Retrieve recent conversation history
         last_events = self.get_last_n_events(5)
-        context = ""
+        conversation_history = ""
         for e in last_events:
             if e.id == event.id:
                 break  # Stop when we reach the current event
-            context += f"{e.participant_name}: {e.content}\n"
+            conversation_history += f"{e.participant_name}: {e.content}\n"
             
         # Create the prompt
         system_prompt = "You are an assistant that interprets the meaning and intent behind utterances in a conversation. Provide a brief interpretation that captures the key points, emotional tone, and implicit meaning."
-        user_prompt = f"Context:\n{context}\n\nUtterance to interpret:\n{event.participant_name}: {event.content}\n\nInterpretation:"
+        user_prompt = f"Conversation history:\n{conversation_history}\n\nUtterance to interpret:\n{event.participant_name}: {event.content}\n\nInterpretation:"
         
         # Call the OpenAI API
         try:
@@ -196,6 +186,27 @@ class Conversation:
                 # Log the error
                 print(f"Error computing interpretation embedding: {str(e)}")
     
+    
+    async def broadcast_event(self, event: Event) -> None:
+        """Broadcast the specified event to all participants and let them process it concurrently.
+        
+        This method uses asyncio.gather to process all participants in parallel,
+        which can significantly improve performance when there are multiple participants.
+        
+        Args:
+            event: The event to broadcast to all participants
+        """
+        # Create think tasks for all participants
+        process_tasks = [
+            participant.think(self, event)
+            for participant in self.participants
+        ]
+        
+        # Execute all think tasks concurrently
+        if process_tasks:
+            await asyncio.gather(*process_tasks)
+
+            
     # Getters
     def get_last_n_events(self, n: int = 5) -> List[Event]:
         """Get the last n events from the conversation history.
@@ -225,3 +236,20 @@ class Conversation:
             if event.id == event_id:
                 return event
         return None
+    
+    def get_participant_by_id(self, participant_id: str) -> Optional['Participant']:
+        """Get a participant by their ID.
+        
+        This method searches through all participants to find one with a matching ID.
+        
+        Args:
+            participant_id: The ID of the participant to find
+            
+        Returns:
+            The participant with the matching ID, or None if not found
+        """
+        for participant in self.participants:
+            if participant.id == participant_id:
+                return participant
+        return None
+    

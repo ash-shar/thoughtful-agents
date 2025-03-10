@@ -5,15 +5,19 @@ import asyncio
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
     from inner_thoughts_ai.models.conversation import Conversation, Event
-    from inner_thoughts_ai.models.participant import Participant, Agent
+    from inner_thoughts_ai.models.participant import Agent
+
+# Import directly to fix the NameError
+from inner_thoughts_ai.models.participant import Participant
+from inner_thoughts_ai.models.conversation import Conversation
 
 from inner_thoughts_ai.utils.llm_api import get_completion
 
-async def predict_next_speaker(conversation: 'Conversation') -> str:
-    """Predict the next speaker in the conversation.
+async def predict_turn_taking(conversation: 'Conversation') -> str:
+    """Predict turn taking type based on the last 5 utterances.
     
     Args:
-        conversation: The conversation to predict the next speaker for
+        conversation: The conversation to predict the turn taking type for
         
     Returns:
         The name of the predicted next speaker, or "anyone" if no clear prediction
@@ -63,59 +67,30 @@ async def predict_next_speaker(conversation: 'Conversation') -> str:
         return "anyone"
 
 
-async def decide_next_speaker(conversation: 'Conversation') -> Tuple[Optional['Participant'], str]:
+async def decide_next_speaker_and_utterance(conversation: 'Conversation') -> Tuple[Optional[Participant], str]:
     """Decide the next speaker and their utterance based on current conversation state.
-    
-    Args:
-        conversation: The conversation to analyze
-        
-    Returns:
-        A tuple of (participant, utterance) where participant may be None if no decision
+    Get all selected thoughts from all participants, and then select the one with the highest intrinsic motivation score.
     """
-    # Dictionary to collect thoughts from all agents
-    all_agent_thoughts = {}
+    # Get all selected thoughts from all participants
+    selected_thoughts = []
+    for participant in conversation.participants:
+        selected_thoughts.extend(participant.thought_reservoir.get_selected_thoughts())
+
+    if len(selected_thoughts) == 0:
+        return None, None
     
-    # Gather all agent thoughts concurrently using asyncio.gather
-    agents = [p for p in conversation.participants if hasattr(p, 'act')]
+    # Select the thought with the highest intrinsic motivation score
+    selected_thought = max(selected_thoughts, key=lambda x: x.intrinsic_motivation['score'])
+
+    participant = conversation.get_participant_by_id(selected_thought.agent_id)
+    # Articulate the thought
+    from inner_thoughts_ai.utils.thinking_engine import articulate_thought
+    utterance = await articulate_thought(selected_thought, conversation, agent=participant)
     
-    # Create a list of coroutines to run concurrently
-    act_coroutines = [agent.act(conversation) for agent in agents]
-    
-    # Run them all concurrently
-    results = await asyncio.gather(*act_coroutines)
-    
-    # Store the results
-    for agent, thoughts in zip(agents, results):
-        if thoughts:
-            all_agent_thoughts[agent] = thoughts
-    
-    # If no agent has thoughts to articulate, return None
-    if not all_agent_thoughts:
-        return None, ""
-    
-    # Find the agent with the highest-rated thought
-    best_agent = None
-    best_thought = None
-    highest_score = -1
-    
-    for agent, thoughts in all_agent_thoughts.items():
-        for thought in thoughts:
-            score = thought.intrinsic_motivation.get('score', 0)
-            if score > highest_score:
-                highest_score = score
-                best_thought = thought
-                best_agent = agent
-    
-    # If we found a thought to articulate
-    if best_agent and best_thought:
-        # Articulate the thought
-        utterance = await best_agent.articulate_thought(best_thought, conversation)
-        return best_agent, utterance
-    
-    # No suitable thought found, select a random thought from a random agent
-    random_agent = random.choice(list(all_agent_thoughts.keys()))
-    random_thought = random.choice(all_agent_thoughts[random_agent])
-    utterance = await random_agent.articulate_thought(random_thought, conversation)
-    return random_agent, utterance
+    # Return the next speaker and their utterance
+    return participant, utterance
 
 
+    
+    
+    

@@ -1,6 +1,5 @@
 import numpy as np  # type: ignore
 from typing import List, Optional, Union
-import asyncio
 from numpy.typing import NDArray
 
 from inner_thoughts_ai.models.enums import MentalObjectType

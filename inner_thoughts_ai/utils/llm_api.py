@@ -10,6 +10,9 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Disable httpx logs
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 class LLMAPIError(Exception):
     """Custom exception for LLM API errors."""
     pass
@@ -31,31 +34,26 @@ def get_client() -> OpenAI:
 async def get_completion(
     system_prompt: str,
     user_prompt: str,
-    model: str = "gpt-4o-mini",
+    model: str = "gpt-4o",
     temperature: float = 1.0,
     max_tokens: Optional[int] = None,
     max_retries: int = 3,
-    get_logprobs: bool = False,
-    logprobs: int = 5,
     response_format: Optional[str] = None
 ) -> Dict[str, Any]:
     """Get completion from OpenAI API.
     
     Args:
-        system_prompt: System message to set context
+        system_prompt: System message
         user_prompt: User message/query
-        model: Model to use (default: gpt-4o-mini)
+        model: Model to use (default: gpt-4o)
         temperature: Sampling temperature (default: 1.0)
         max_tokens: Maximum tokens in response (optional)
         max_retries: Maximum number of retry attempts (default: 3)
-        get_logprobs: Whether to return logprobs (default: False)
-        logprobs: Number of most likely tokens to return (default: 5)
         response_format: Response format type, e.g. "json" (optional)
         
     Returns:
         Dictionary containing:
             - 'text': Generated text response
-            - 'logprobs': List of (token, logprob) pairs if get_logprobs=True
         
     Raises:
         LLMAPIError: If API call fails after retries or other errors occur
@@ -71,18 +69,15 @@ async def get_completion(
                 ],
                 "temperature": temperature,
                 "max_tokens": max_tokens,
-                "logprobs": logprobs if get_logprobs else None,
                 "top_p": 1.0
             }
             
             if response_format:
                 completion_args["response_format"] = {"type": response_format}
             
-            response = await client.chat.completions.create(**completion_args)
+            response = client.chat.completions.create(**completion_args)
             
             result = {"text": response.choices[0].message.content}
-            if get_logprobs and hasattr(response.choices[0], "logprobs"):
-                result["logprobs"] = response.choices[0].logprobs
             return result
             
         except APIError as e:

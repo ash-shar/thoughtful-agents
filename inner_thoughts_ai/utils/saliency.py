@@ -33,7 +33,7 @@ def compute_saliency(
     # Compute similarities
     similarity_interpretation = compute_similarity(
         item.embedding,
-        utterance.interpretation.embedding if hasattr(utterance, 'interpretation') else utterance.embedding
+        utterance.interpretation_embedding if hasattr(utterance, 'interpretation') else utterance.embedding
     )
     similarity_text = compute_similarity(item.embedding, utterance.embedding)
     
@@ -45,6 +45,7 @@ def compute_saliency(
     # if no weight is provided, use the default weight of 1.0
     item_weight = item.weight if hasattr(item, 'weight') else 1.0
     saliency = max(b * similarity_interpretation, c * similarity_text) * item_weight * decay
+
     return saliency
 
 # Recalibrate saliency for a collection of items (e.g. thoughts or memories) based on an utterance.
@@ -72,4 +73,5 @@ def recalibrate_all_saliency(
     for item in items:
         if utterance.turn_number < item.last_accessed_turn:
             continue
+        
         item.saliency = compute_saliency(item, utterance, decay_factor, b, c)
