@@ -1,6 +1,6 @@
 # Proactive Agents with Inner Thoughts 💭
 
-A framework for modeling agent thoughts and conversations, enabling more natural and human-like interactions between AI agents and humans.
+A framework for modeling agent thoughts and conversations, enabling more natural and human-like interactions between multiple AI agents and humans.
 
 ## Overview
 
