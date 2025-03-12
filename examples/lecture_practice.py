@@ -1,8 +1,8 @@
 """
-Lecture Practice Feedback Example
+Lecture Practice with AI Proactive Feedback
 
 This example demonstrates a scenario where a user is practicing a lecture or talk,
-with an AI assistant providing proactive feedback without interrupting too much.
+with an AI assistant providing proactive feedback without the user having to ask for it.
 The AI uses intrinsic motivation to decide when to provide feedback.
 """
 

@@ -77,7 +77,8 @@ The project is organized as follows:
   - `text_splitter.py`: Text splitting using spaCy
 - `examples/`: Example implementations
   - `hello_world.py`: Simple example with multiple agents in conversation
-  - `ai_thought_process_example.py`: Detailed example showing the AI's thought process
+  - `ai_thought_process.py`: Detailed example showing the AI's thought process
+  - `lecture_practice.py`: Example of an AI providing proactive feedback during a lecture practice
 
 ## Key Components
 
@@ -174,7 +175,7 @@ next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)
 
 ### Detailed Thought Process Example
 
-The `ai_thought_process_example.py` provides a more detailed look at the AI's internal thought process:
+The `ai_thought_process.py` provides a more detailed look at the AI's internal thought process:
 
 ```python
 # Create a human and an AI agent
@@ -199,6 +200,46 @@ selected_thoughts = await ai_agent.select_thoughts(new_thoughts, conversation)
 if selected_thoughts:
     ai_response = await ai_agent.articulate_thought(selected_thoughts[0], conversation)
     await ai_agent.send_message(ai_response, conversation)
+```
+
+### Lecture Practice Example
+
+The `lecture_practice.py` example demonstrates how an AI assistant can provide proactive feedback during a lecture practice, without the user having to ask for it:
+
+```python
+# Create a conversation with context for practicing a lecture
+conversation = Conversation(context="A user is practicing a lecture on artificial intelligence, and an AI assistant is providing feedback.")
+
+# Create the human presenter and AI feedback assistant
+human = Human(name="Presenter")
+ai_assistant = Agent(name="Feedback Assistant", proactivity_config={
+    'im_threshold': 3.0,  
+    'system1_prob': 0.0,
+    'interrupt_threshold': 3.5  # Higher threshold to reduce interruptions
+})
+
+# Add background knowledge to the AI assistant
+background_knowledge = """I'm an AI assistant designed to provide helpful feedback on presentations and lectures.
+My goal is to be helpful but not intrusive. I should:
+1. Only interrupt for critical feedback that would significantly improve the presentation.
+2. Note minor issues but save them for when the presenter pauses or asks for feedback.
+3. Pay attention to content accuracy, delivery style, pacing, and engagement."""
+
+ai_assistant.initialize_memory(background_knowledge, by_paragraphs=True)
+
+# Process each lecture segment in a loop
+for i, segment in enumerate(lecture_segments):
+    # Human presenter speaks
+    human_event = await human.send_message(segment["content"].strip(), conversation)
+    
+    # Broadcast the event to let the AI think
+    await conversation.broadcast_event(human_event)
+    
+    # Use the turn-taking engine to decide if AI should provide feedback
+    next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)
+    
+    if next_speaker and next_speaker.name == "Feedback Assistant":
+        await ai_assistant.send_message(utterance, conversation)
 ```
 
 ## License
