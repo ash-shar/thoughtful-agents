@@ -378,21 +378,21 @@ Thought: ${thought.content}
         else:
             rating = 3.0
             
-        # print(f"Rating from LLM: {rating}")
+        # print(f"🐞DEBUG: Rating from LLM: {rating}")
         # print(f"Reasoning from LLM: {response_data.get('reasoning', 'No reasoning provided')}")
         
         # Calculate how long the agent has not spoken
         current_turn = conversation.turn_number
         turns_no_speak = current_turn - agent.last_spoken_turn if agent.last_spoken_turn >= 0 else current_turn
-        # print(f"Agent has not spoken for {turns_no_speak} turns")
+        # print(f"🐞DEBUG: Agent has not spoken for {turns_no_speak} turns")
         
         # Adjust the rating based on how long the agent has been silent
         # Increase by a factor of 1.01^turns_no_speak
         silence_factor = 1.01 ** turns_no_speak
-        # print(f"Silence factor: {silence_factor}")
+        # print(f"🐞DEBUG: Silence factor: {silence_factor}")
         
         rating *= silence_factor
-        # print(f"Rating after silence adjustment: {rating}")
+        # print(f"🐞DEBUG: Rating after silence adjustment: {rating}")
         
         # Ensure the rating is between 1.0 and 5.0
         rating = max(1.0, min(5.0, rating))

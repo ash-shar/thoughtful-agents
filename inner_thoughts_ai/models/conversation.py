@@ -193,13 +193,19 @@ class Conversation:
         This method uses asyncio.gather to process all participants in parallel,
         which can significantly improve performance when there are multiple participants.
         
+        Only Agent type participants will 'think' about the event, as other participant types
+        (like Human) don't have the think method.
+        
         Args:
             event: The event to broadcast to all participants
         """
-        # Create think tasks for all participants
+        # Get only Agent participants
+        agent_participants = self.get_agents()
+        
+        # Create think tasks only for Agent participants
         process_tasks = [
             participant.think(self, event)
-            for participant in self.participants
+            for participant in agent_participants
         ]
         
         # Execute all think tasks concurrently
@@ -220,6 +226,19 @@ class Conversation:
             List of the n most recent events
         """
         return self.event_history[-n:]
+    
+    def get_agents(self) -> List['Participant']:
+        """Get all participants that are Agent instances.
+        
+        This is a utility method that filters the participants list to only include Agent instances.
+        
+        Returns:
+            List of participants that are Agent instances
+        """
+        # Import Agent here to avoid circular imports
+        from inner_thoughts_ai.models.participant import Agent
+        
+        return [participant for participant in self.participants if isinstance(participant, Agent)]
     
     def get_by_id(self, event_id: str) -> Optional[Event]:
         """Get an event by its ID.

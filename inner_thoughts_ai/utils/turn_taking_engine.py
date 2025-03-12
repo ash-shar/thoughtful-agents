@@ -70,10 +70,12 @@ async def predict_turn_taking(conversation: 'Conversation') -> str:
 async def decide_next_speaker_and_utterance(conversation: 'Conversation') -> Tuple[Optional[Participant], str]:
     """Decide the next speaker and their utterance based on current conversation state.
     Get all selected thoughts from all participants, and then select the one with the highest intrinsic motivation score.
+    
+    Only Agent type participants are considered, as other participant types (like Human) don't have a thought_reservoir.
     """
-    # Get all selected thoughts from all participants
+    # Get all selected thoughts from Agent participants only
     selected_thoughts = []
-    for participant in conversation.participants:
+    for participant in conversation.get_agents():
         selected_thoughts.extend(participant.thought_reservoir.get_selected_thoughts())
 
     if len(selected_thoughts) == 0:

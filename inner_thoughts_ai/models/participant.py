@@ -323,6 +323,9 @@ class Agent(Participant):
         Returns:
             None
         """
+        # Clean whitespace from the text
+        text = text.strip()
+
         # Split the text into chunks
         chunks = self.text_splitter.split_text(text, by_paragraphs=by_paragraphs)
 
