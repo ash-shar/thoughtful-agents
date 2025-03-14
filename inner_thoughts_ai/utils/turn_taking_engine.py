@@ -13,14 +13,19 @@ from inner_thoughts_ai.models.conversation import Conversation
 
 from inner_thoughts_ai.utils.llm_api import get_completion
 
-async def predict_turn_taking(conversation: 'Conversation') -> str:
-    """Predict turn taking type based on the last 5 utterances.
+async def predict_turn_taking_type(conversation: 'Conversation') -> str:
+    """Predict turn-taking type based on the last 5 utterances.
+    
+    This function provides a prediction of the turn-taking type based on the last 5 utterances.
+    It returns either:
+    1. A specific speaker's name (indicating turn-allocation to that speaker)
+    2. "anyone" (indicating open floor/self-selection where any speaker could take the turn)
     
     Args:
-        conversation: The conversation to predict the turn taking type for
+        conversation: The conversation to predict the turn-taking type for
         
     Returns:
-        The name of the predicted next speaker, or "anyone" if no clear prediction
+        Either a specific speaker's name or "anyone" indicating the turn-taking type
     """
     # Get the last 5 utterances
     last_events = conversation.get_last_n_events(5)
@@ -43,23 +48,24 @@ async def predict_turn_taking(conversation: 'Conversation') -> str:
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             temperature=0.7,  # Lower temperature for more deterministic results
+            model="ft:gpt-3.5-turbo-0125:personal::9Vu6HJKH", # Custom fine-tuned model for turn taking prediction
         )
         
-        # Extract the predicted speaker from the response
-        predicted_speaker = response.get("text", "").strip()
+        # Extract the turn allocation type from the response
+        turn_allocation_type = response.get("text", "").strip()
         
         # Validate the prediction
         valid_speakers = [p.name for p in participants] + ["anyone"]
-        if predicted_speaker not in valid_speakers:
+        if turn_allocation_type not in valid_speakers:
             # If the prediction is not valid, default to "anyone"
             return "anyone"
         
-        # Update the last event with the predicted next speaker
-        if last_events and predicted_speaker != "anyone":
+        # Update the last event with the predicted turn allocation
+        if last_events:
             last_event = last_events[-1]
-            last_event.pred_next_turn = predicted_speaker
+            last_event.pred_next_turn = turn_allocation_type
         
-        return predicted_speaker
+        return turn_allocation_type
         
     except Exception as e:
         # Log the error and default to "anyone"
@@ -72,17 +78,34 @@ async def decide_next_speaker_and_utterance(conversation: 'Conversation') -> Tup
     Get all selected thoughts from all participants, and then select the one with the highest intrinsic motivation score.
     
     Only Agent type participants are considered, as other participant types (like Human) don't have a thought_reservoir.
+    The function ensures that the same participant doesn't speak twice in a row.
     """
+
+    # Get the last speaker's ID from conversation history
+    last_speaker_id = None
+    if conversation.event_history:
+        last_speaker_id = conversation.event_history[-1].participant_id
+    
+    # print("🐞DEBUG: last_speaker_id", last_speaker_id)
+
+    other_agents = [p for p in conversation.get_agents() if p.id != last_speaker_id]
+
+    # print("🐞DEBUG: other_agents", other_agents)
+    
     # Get all selected thoughts from Agent participants only
     selected_thoughts = []
-    for participant in conversation.get_agents():
-        selected_thoughts.extend(participant.thought_reservoir.get_selected_thoughts())
+    for agent in other_agents:
+        selected_thoughts.extend(agent.thought_reservoir.get_selected_thoughts())
+
+    # print("🐞DEBUG: selected_thoughts", selected_thoughts)
 
     if len(selected_thoughts) == 0:
         return None, None
     
     # Select the thought with the highest intrinsic motivation score
     selected_thought = max(selected_thoughts, key=lambda x: x.intrinsic_motivation['score'])
+
+    # print("🐞DEBUG: selected_thought", selected_thought)
 
     participant = conversation.get_participant_by_id(selected_thought.agent_id)
     # Articulate the thought

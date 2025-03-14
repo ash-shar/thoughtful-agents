@@ -79,7 +79,7 @@ Respond with a JSON object in the following format:
             agent_id=agent.id,
             type=MentalObjectType.THOUGHT_SYSTEM1,
             content=prompt_response["thought"],
-            turn_number=conversation.turn_number,
+            generated_turn=conversation.turn_number,
             last_accessed_turn=conversation.turn_number,
             intrinsic_motivation={"reasoning": "Default motivation before evaluation", "score": -1.0},
             stimuli=last_events,
@@ -240,7 +240,7 @@ Respond with a JSON object in the following format:
                 agent_id=agent.id,
                 type=MentalObjectType.THOUGHT_SYSTEM2,
                 content=content,
-                turn_number=conversation.turn_number,
+                generated_turn=conversation.turn_number,
                 last_accessed_turn=conversation.turn_number,
                 intrinsic_motivation={"reasoning": "Default motivation before evaluation", "score": -1.0},  # Default value, will be updated by evaluation
                 stimuli=stimuli_objects,
@@ -273,7 +273,7 @@ async def evaluate_thought(
     Returns:
         Dictionary containing reasoning and score for the thought's intrinsic motivation
     """
-    print(f"\n=== Evaluating thought for {agent.name}: {thought.content[:50]}... ===")
+    print(f"=== Evaluating thought for {agent.name}: {thought.content[:50]}... ===")
     
     overall_context = conversation.context
     # Get conversation history
@@ -461,9 +461,9 @@ async def articulate_thought(
 You do not know other people in the conversation before, and your goal is to have a natural conversation with them.
 
 Articulate what you would say based on the current thought you have, as if you were to speak next in the conversation.
-Be concise and succinct. Do not try to be too clever or too verbose. Leave room for others to respond.
-DO NOT mention the other party's name in your response unless absolutely necessary.
+Be concise and succinct. Do not try to be too clever or too verbose. Keep it short as in a natural online chat (under 15 words).
 DO NOT be repetitive and repeat what previous speakers have said.
+DO NOT always end your response with a question. Leave room for other participants. 
 Make sure that the response sounds human-like and natural, that is something one would say in an online chat. 
 Make some inattentive mistakes such as typos, grammar errors, or colloquial language to make the response more human-like. But avoid making too many mistakes that make the response hard to understand.
 

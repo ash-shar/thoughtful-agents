@@ -196,9 +196,18 @@ class Conversation:
         Only Agent type participants will 'think' about the event, as other participant types
         (like Human) don't have the think method.
         
+        Before broadcasting, this method ensures pred_next_turn is set on the event
+        by calling predict_turn_taking_type if necessary, which is important for proper thought selection.
+        
         Args:
             event: The event to broadcast to all participants
         """
+        # Ensure pred_next_turn is set before broadcasting
+        if not event.pred_next_turn:
+            from inner_thoughts_ai.utils.turn_taking_engine import predict_turn_taking_type
+            turn_allocation_type = await predict_turn_taking_type(self)
+            # No need to set event.pred_next_turn as predict_turn_taking_type already does it
+        
         # Get only Agent participants
         agent_participants = self.get_agents()
         

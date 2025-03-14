@@ -9,7 +9,7 @@ from inner_thoughts_ai.models import (
     Human,
     Conversation,
 )
-from inner_thoughts_ai.utils.turn_taking_engine import predict_turn_taking
+from inner_thoughts_ai.utils.turn_taking_engine import predict_turn_taking_type
 
 async def main():
     # Create a conversation with a simple context
@@ -39,7 +39,7 @@ async def main():
     
     # Predict who should speak next and update the event
     print("\n-- 🔄 Predicting who should speak next --")
-    predicted_speaker = await predict_turn_taking(conversation)
+    predicted_speaker = await predict_turn_taking_type(conversation)
     human_event.pred_next_turn = predicted_speaker
     print(f"\n🎯 Turn-taking engine predicts that the turn is allocated to: {predicted_speaker}")
     

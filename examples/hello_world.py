@@ -11,7 +11,7 @@ from inner_thoughts_ai.models import (
     Agent, 
     Conversation, 
 )
-from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking
+from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
 
 async def main():
 
@@ -53,6 +53,10 @@ async def main():
     new_event = await alice.send_message("I'm recently thinking about adopting a cat. What do you think about this?", conversation)
     print(f"👤 Alice: I'm recently thinking about adopting a cat. What do you think about this?")
 
+    # Predict the next speaker before broadcasting the event. This to determine whether the next_turn is turn-allocation or self-selection.
+    turn_allocation_type = await predict_turn_taking_type(conversation)
+    print(f"🎯 Turn-taking engine predicts that the turn is allocated to {turn_allocation_type}")
+    
     # Broadcast the event to let all agents think
     await conversation.broadcast_event(new_event)
 
@@ -61,10 +65,6 @@ async def main():
         print(f"🧠 {participant.name}'s thoughts:")
         for thought in participant.thought_reservoir.thoughts:
             print(f"  💭 {thought.content} (Intrinsic Motivation: {thought.intrinsic_motivation['score']})")
-    
-    # Use the turn-taking engine to predict who should speak next
-    predicted_speaker = await predict_turn_taking(conversation)
-    print(f"🎯 Turn-taking engine predicts that the turn is allocated to {predicted_speaker}")
     
     # Use the turn-taking engine to deduce the next speaker and their utterance
     next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)

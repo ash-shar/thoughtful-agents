@@ -14,7 +14,7 @@ class Memory(MentalObject):
         agent_id: int,
         type: MentalObjectType,
         content: str,
-        turn_number: int,
+        generated_turn: int,
         last_accessed_turn: int,
         id: Optional[str] = None,
         **kwargs
@@ -29,7 +29,7 @@ class Memory(MentalObject):
             agent_id=agent_id,
             type=type,
             content=content,
-            turn_number=turn_number,
+            generated_turn=generated_turn,
             last_accessed_turn=last_accessed_turn,
             **kwargs
         )

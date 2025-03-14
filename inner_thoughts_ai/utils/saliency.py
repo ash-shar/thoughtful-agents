@@ -56,22 +56,26 @@ def recalibrate_all_saliency(
     b: float = 1.0,
     c: float = 1.0
 ) -> None:
-    """Recalibrate saliency for a collection of items based on an utterance.
-    
-    Updates the saliency attribute of each item in place based on similarity to the utterance
-    and time decay since the item was created/last accessed.
-
-    if utterance.turn_number is smaller than the last_accessed_turn of any item, skip the item
+    """Recalibrate saliency for all items based on an utterance.
     
     Args:
-        items: List of items to recalibrate (each must have embedding, weight, turn_number attributes)
+        items: List of items to recalibrate (each must have embedding, weight, last_accessed_turn attributes)
         utterance: Utterance to compute similarity against (must have embedding, turn_number attributes)
         decay_factor: Factor for time-based decay (default: 1.0)
         b: Weight for interpretation similarity (default: 1.0)
         c: Weight for text similarity (default: 1.0)
     """
     for item in items:
+        # Skip items that were created after the utterance
+        # This can happen if the utterance is from a previous turn
         if utterance.turn_number < item.last_accessed_turn:
             continue
-        
-        item.saliency = compute_saliency(item, utterance, decay_factor, b, c)
+            
+        # Compute saliency
+        item.saliency = compute_saliency(
+            item=item,
+            utterance=utterance,
+            decay_factor=decay_factor,
+            b=b,
+            c=c
+        )

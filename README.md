@@ -58,6 +58,16 @@ python -m spacy download en_core_web_sm
 export OPENAI_API_KEY=your_api_key_here
 ```
 
+4. Customize LLM models (optional):
+
+```bash
+# Customize the completion model (default: gpt-4o)
+export COMPLETION_MODEL=gpt-4-turbo
+
+# Customize the embedding model (default: text-embedding-3-small)
+export EMBEDDING_MODEL=text-embedding-3-large
+```
+
 ## Project Structure
 
 The project is organized as follows:
@@ -76,9 +86,10 @@ The project is organized as follows:
   - `turn_taking_engine.py`: Turn-taking prediction 
   - `text_splitter.py`: Text splitting using spaCy
 - `examples/`: Example implementations
-  - `hello_world.py`: Simple example with multiple agents in conversation
+  - `hello_world.py`: Simple example with two agents in conversation
   - `ai_thought_process.py`: Detailed example showing the AI's thought process
   - `lecture_practice.py`: Example of an AI providing proactive feedback during a lecture practice
+  - `multiparty_conversation.py`: Example of a multi-party conversation between three AI agents
 
 ## Key Components
 
@@ -114,9 +125,19 @@ Key functions in `thinking_engine.py` include:
 - `evaluate_thought()`: Assesses thoughts and assigns intrinsic motivation scores (1-5)
 - `articulate_thought()`: Transforms internal thoughts into natural language utterances
 
+
 ### Turn-Taking
 
-The turn-taking engine predicts appropriate moments for participation and decides which agent should speak next based on their intrinsic motivation scores.
+The turn-taking engine implements Sacks et al.'s conversation analysis principles ([Simplest Systematics](https://pure.mpg.de/rest/items/item_2376846_3/component/file_2376845/content)):
+
+1. **Turn-allocation**: When a speaker directly selects the next speaker (e.g., "What do you think, Alice?")
+2. **Self-selection**: When no specific speaker is selected, any participant may take the floor
+
+The framework implements this through two key functions:
+
+- `predict_turn_taking_type`: Analyzes conversations to determine if a specific speaker is selected or if the floor is open
+- `decide_next_speaker_and_utterance`: Selects the next speaker based on turn allocation type, intrinsic motivation scores, and proactivity settings
+
 
 ### Proactivity Configuration
 
@@ -139,7 +160,7 @@ To determine when and how the AI participates:
 
 ### Basic Example
 
-The `hello_world.py` example demonstrates a simple conversation between multiple AI agents:
+The `hello_world.py` example demonstrates a simple conversation between two AI agents:
 
 ```python
 # Create a conversation with a simple context
@@ -169,9 +190,27 @@ conversation.add_participant(bob)
 # Alice starts the conversation
 await alice.send_message("I'm recently thinking about adopting a cat. What do you think about this?", conversation)
 
-# Use the turn-taking engine to decide who speaks next
+# Predict the next speaker before broadcasting the event. 
+# This to determine whether the next_turn is turn-allocation or self-selection.
+turn_allocation_type = await predict_turn_taking_type(conversation)
+
+# Broadcast the event to let all agents think
+await conversation.broadcast_event(new_event)
+
+# Decide the next speaker and their utterance
 next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)
 ```
+
+For optimal agent behavior, follow this sequence of operations for event processing:
+
+1. Create an event using `participant.send_message()`
+2. Call `predict_turn_taking_type(conversation)` to determine the turn allocation type (either a specific speaker name or "anyone")
+3. Call `conversation.broadcast_event(event)` to let agents process the event
+4. Use `decide_next_speaker_and_utterance(conversation)` to get the actual next speaker
+
+This sequence ensures that when agents process an event during `broadcast_event`, they have access to the turn allocation prediction (`pred_next_turn`) needed for proper thought selection.
+
+**Note:** The framework includes a safety mechanism that automatically calls `predict_turn_taking_type` if needed during `broadcast_event`, but it's recommended to call it explicitly for clarity and consistency.
 
 ### Detailed Thought Process Example
 
@@ -208,7 +247,7 @@ The `lecture_practice.py` example demonstrates how an AI assistant can provide p
 
 ```python
 # Create a conversation with context for practicing a lecture
-conversation = Conversation(context="A user is practicing a lecture on artificial intelligence, and an AI assistant is providing feedback.")
+conversation = Conversation(context="A user is practicing a lecture on artificial intelligence.")
 
 # Create the human presenter and AI feedback assistant
 human = Human(name="Presenter")
@@ -232,6 +271,10 @@ for i, segment in enumerate(lecture_segments):
     # Human presenter speaks
     human_event = await human.send_message(segment["content"].strip(), conversation)
     
+    # Predict the next speaker before broadcasting the event. 
+    # This to determine whether the next_turn is turn-allocation or self-selection.
+    turn_allocation_type = await predict_turn_taking_type(conversation)
+    
     # Broadcast the event to let the AI think
     await conversation.broadcast_event(human_event)
     
@@ -240,6 +283,64 @@ for i, segment in enumerate(lecture_segments):
     
     if next_speaker and next_speaker.name == "Feedback Assistant":
         await ai_assistant.send_message(utterance, conversation)
+```
+
+### Multi-Party Conversation Example
+
+The `multiparty_conversation.py` example demonstrates a casual multi-party conversation between three AI agents discussing their weekend activities. Each agent has a different "persona" and proactivity configuration. They will participate in the conversation proactively based on their intrinsic motivation scores, deciding whether to speak or not in each turn.
+
+```python
+# Create a conversation with a simple context
+conversation = Conversation(context="A casual conversation between friends Alice, Bob, and Charlie about what they did last weekend.")
+
+# Create three agents with their respective proactivity configurations
+alice = Agent(name="Alice", proactivity_config={
+    'im_threshold': 3.0,  # Moderate threshold for speaking
+    'system1_prob': 0.4,  # Moderate chance of quick, intuitive responses
+    'interrupt_threshold': 4.2  # High threshold to avoid frequent interruptions
+})
+
+bob = Agent(name="Bob", proactivity_config={
+    'im_threshold': 2.8,  # Slightly more eager to speak
+    'system1_prob': 0.5,  # Higher chance of quick, intuitive responses
+    'interrupt_threshold': 4.0  # More likely to interrupt when highly motivated
+})
+
+charlie = Agent(name="Charlie", proactivity_config={
+    'im_threshold': 3.0,  # Moderate threshold for speaking
+    'system1_prob': 0.3,  # More deliberate responses
+    'interrupt_threshold': 4.5  # Very unlikely to interrupt
+})
+
+# Initialize long-term memories for each agent
+alice.initialize_memory(alice_memories, by_paragraphs=True)
+bob.initialize_memory(bob_memories, by_paragraphs=True)
+charlie.initialize_memory(charlie_memories, by_paragraphs=True)
+
+# Add agents to the conversation
+conversation.add_participant(alice)
+conversation.add_participant(bob)
+conversation.add_participant(charlie)
+
+# Alice starts the conversation
+new_event = await alice.send_message("Hey everyone! What did you all do last weekend?", conversation)
+# Predict the turn allocation type before broadcasting the event
+turn_allocation_type = await predict_turn_taking_type(conversation)
+# Broadcast the event to let all agents think
+await conversation.broadcast_event(new_event)
+
+# Run the conversation for multiple turns
+for turn in range(num_turns):
+    # Determine the next speaker based on intrinsic motivation
+    next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)
+    
+    if next_speaker:
+        # Send the message
+        new_event = await next_speaker.send_message(utterance, conversation)
+        # Predict the turn allocation type before broadcasting the event
+        turn_allocation_type = await predict_turn_taking_type(conversation)
+        # Broadcast the event to let all agents think
+        await conversation.broadcast_event(new_event)
 ```
 
 ## License

@@ -215,14 +215,14 @@ class Agent(Participant):
         intrinsic motivation scores, and proactivity configuration.
         
         Args:
-            thoughts: List of thoughts to select from
+            thoughts: List of thoughts to select from (new thoughts)
             conversation: The current conversation
             
         Returns:
             List of selected thoughts to potentially articulate
         """
-        # Reset selected status for all thoughts
-        for thought in thoughts:
+        # Reset selected status for ALL thoughts in the reservoir, not just the new ones
+        for thought in self.thought_reservoir.thoughts:
             thought.selected = False
             
         # Get proactivity configuration thresholds
@@ -245,14 +245,14 @@ class Agent(Participant):
             reverse=True
         )
         
-        # Step 1: Predict the turn-taking type for the current event
-        predicted_speaker = conversation.event_history[-1].pred_next_turn
+        # Step 1: Get the turn allocation type from the current event
+        turn_allocation_type = conversation.event_history[-1].pred_next_turn
         
         selected_thoughts = []
         
         # Step 2: Process according to turn-taking type
-        if predicted_speaker == "anyone":
-            # Turn is open to anyone
+        if turn_allocation_type == "anyone":
+            # Turn is open to anyone (self-selection)
             high_motivation_thoughts = [t for t in sorted_thoughts if t.intrinsic_motivation['score'] >= im_threshold]
             
             if high_motivation_thoughts:
@@ -265,7 +265,7 @@ class Agent(Participant):
                     if system1_thoughts:
                         selected_thoughts.append(system1_thoughts[0])
                         
-        elif predicted_speaker == self.name:
+        elif turn_allocation_type == self.name:
             # Turn is allocated to this agent
             # Select the highest-rated thought
             if sorted_thoughts:
@@ -299,13 +299,13 @@ class Agent(Participant):
         memory = Memory(
             agent_id=self.id,
             type=memory_type,
-            content=f"{event.participant_name}: {event.content}",
-            turn_number=event.turn_number,
+            content=event.content,
+            generated_turn=event.turn_number,
             last_accessed_turn=event.turn_number,
             compute_embedding=compute_embedding
         )
         
-        # Add to memory store
+        # Add the memory to the memory store
         self.memory_store.add(memory)
         
     def initialize_memory(self, text: str, memory_type: MentalObjectType = MentalObjectType.MEMORY_LONG_TERM, by_paragraphs: bool = False, compute_embedding: bool = True) -> None:
@@ -336,7 +336,7 @@ class Agent(Participant):
                 agent_id=self.id,
                 type=memory_type,
                 content=chunk,
-                turn_number=0,
+                generated_turn=0,
                 last_accessed_turn=0,
                 compute_embedding=compute_embedding
             )

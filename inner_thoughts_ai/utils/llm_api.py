@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 # Disable httpx logs
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
+# Default model settings that can be overridden through environment variables
+DEFAULT_COMPLETION_MODEL = os.getenv("COMPLETION_MODEL", "gpt-4o")
+DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
+
 class LLMAPIError(Exception):
     """Custom exception for LLM API errors."""
     pass
@@ -34,7 +38,7 @@ def get_client() -> OpenAI:
 async def get_completion(
     system_prompt: str,
     user_prompt: str,
-    model: str = "gpt-4o",
+    model: str = DEFAULT_COMPLETION_MODEL,
     temperature: float = 1.0,
     max_tokens: Optional[int] = None,
     max_retries: int = 3,
@@ -45,18 +49,17 @@ async def get_completion(
     Args:
         system_prompt: System message
         user_prompt: User message/query
-        model: Model to use (default: gpt-4o)
+        model: Model to use (default: from environment variable or gpt-4o)
         temperature: Sampling temperature (default: 1.0)
         max_tokens: Maximum tokens in response (optional)
-        max_retries: Maximum number of retry attempts (default: 3)
-        response_format: Response format type, e.g. "json" (optional)
+        max_retries: Maximum number of retries on API error (default: 3)
+        response_format: Response format (optional, e.g., "json_object")
         
     Returns:
-        Dictionary containing:
-            - 'text': Generated text response
+        Dictionary with API response, containing 'text', 'finish_reason', etc.
         
     Raises:
-        LLMAPIError: If API call fails after retries or other errors occur
+        LLMAPIError: If API call fails after max_retries
     """
     client = get_client()
     for attempt in range(max_retries):
@@ -100,21 +103,21 @@ async def get_completion(
 # Async version of the embedding function
 async def get_embedding_async(
     text: str,
-    model: str = "text-embedding-3-small",
+    model: str = DEFAULT_EMBEDDING_MODEL,
     max_retries: int = 3
 ) -> List[float]:
-    """Get text embedding from OpenAI API asynchronously.
+    """Get embedding asynchronously from OpenAI API.
     
     Args:
         text: Text to get embedding for
-        model: Model to use (default: text-embedding-3-small)
-        max_retries: Maximum number of retry attempts (default: 3)
+        model: Model to use (default: from environment variable or text-embedding-3-small)
+        max_retries: Maximum number of retries on API error (default: 3)
         
     Returns:
         List of embedding values
         
     Raises:
-        LLMAPIError: If API call fails after retries or other errors occur
+        LLMAPIError: If API call fails after max_retries
     """
     if not text.strip():
         raise ValueError("Empty text provided for embedding")
@@ -147,21 +150,21 @@ async def get_embedding_async(
 # Synchronous version of the embedding function
 def get_embedding_sync(
     text: str,
-    model: str = "text-embedding-3-small",
+    model: str = DEFAULT_EMBEDDING_MODEL,
     max_retries: int = 3
 ) -> List[float]:
-    """Get text embedding from OpenAI API synchronously.
+    """Get embedding synchronously from OpenAI API.
     
     Args:
         text: Text to get embedding for
-        model: Model to use (default: text-embedding-3-small)
-        max_retries: Maximum number of retry attempts (default: 3)
+        model: Model to use (default: from environment variable or text-embedding-3-small)
+        max_retries: Maximum number of retries on API error (default: 3)
         
     Returns:
         List of embedding values
         
     Raises:
-        LLMAPIError: If API call fails after retries or other errors occur
+        LLMAPIError: If API call fails after max_retries
     """
     if not text.strip():
         raise ValueError("Empty text provided for embedding")

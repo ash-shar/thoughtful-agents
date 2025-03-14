@@ -12,7 +12,7 @@ from inner_thoughts_ai.models import (
     Human,
     Conversation,
 )
-from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance
+from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
 
 async def main():
     # Create a conversation with context for practicing a lecture
@@ -90,17 +90,23 @@ My goal is to be helpful but not intrusive. I should:
         human_event = await human.send_message(segment["content"].strip(), conversation)
         print(f"👤 Presenter: {segment['content']}")
         
+        # Manually set the turn allocation to the human presenter for all turns
+        # Because we are simulating a scenario where the human is presenting and the AI is set to interrupt
+        human_event.pred_next_turn = human.name
+        print(f"🎯 Turn allocation manually set to: {human.name}")
+        
         # Broadcast the event to let the AI think
         await conversation.broadcast_event(human_event)
         
         # Display AI's thoughts
         print(f"🧠 {ai_assistant.name}'s thoughts:")
         for thought in ai_assistant.thought_reservoir.thoughts:
-            print(f"  💭 {thought.content} (Intrinsic Motivation: {thought.intrinsic_motivation['score']})")
+            if thought.generated_turn == conversation.turn_number:
+                print(f"  💭 {thought.content} (Intrinsic Motivation: {thought.intrinsic_motivation['score']})")
         
         # Use the turn-taking engine to decide if AI should provide feedback
+        # The AI will only speak if it has a thought with intrinsic motivation above the interrupt threshold
         next_speaker, utterance = await decide_next_speaker_and_utterance(conversation)
-        print(f"🎯 Turn-taking engine predicts that the turn is allocated to: {next_speaker.name}")
         
         if next_speaker and next_speaker.name == "Feedback Assistant":
             await ai_assistant.send_message(utterance, conversation)

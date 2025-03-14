@@ -12,7 +12,7 @@ class MentalObject:
         agent_id: int,
         type: MentalObjectType,
         content: str,
-        turn_number: int,
+        generated_turn: int,
         last_accessed_turn: int,
         retrieval_count: int = 0,
         weight: float = 1.0,
@@ -25,7 +25,7 @@ class MentalObject:
         self.agent_id = agent_id
         self.type = type
         self.content = content
-        self.turn_number = turn_number
+        self.generated_turn = generated_turn
         self.last_accessed_turn = last_accessed_turn
         self.retrieval_count = retrieval_count
         self.weight = weight
