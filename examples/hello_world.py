@@ -1,5 +1,5 @@
 """
-Hello World Example for Inner Thoughts AI
+Hello World Example for Thoughtful Agents
 
 This is a simple example where two AI agents, Alice and Bob, participate in a
 conversation for one turn. Alice initiates by sending a message, and Bob responds.
@@ -7,11 +7,11 @@ This example uses the turn-taking engine to decide which agent speaks next.
 """
 
 import asyncio
-from inner_thoughts_ai.models import (
+from thoughtful_agents.models import (
     Agent, 
     Conversation, 
 )
-from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
+from thoughtful_agents.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
 
 async def main():
 

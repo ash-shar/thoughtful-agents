@@ -72,14 +72,14 @@ export EMBEDDING_MODEL=text-embedding-3-large
 
 The project is organized as follows:
 
-- `inner_thoughts_ai/models/`: Core model classes
+- `thoughtful_agents/models/`: Core model classes
   - `participant.py`: Participant, Human, and Agent classes
   - `thought.py`: Thought-related classes
   - `memory.py`: Memory-related classes
   - `conversation.py`: Conversation and Event classes
   - `mental_object.py`: Base class for mental objects
   - `enums.py`: Enumeration types
-- `inner_thoughts_ai/utils/`: Utility functions
+- `thoughtful_agents/utils/`: Utility functions
   - `llm_api.py`: OpenAI API interaction
   - `saliency.py`: Saliency computation
   - `thinking_engine.py`: Functions for thought generation, evaluation, and articulation

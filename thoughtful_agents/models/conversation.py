@@ -4,12 +4,12 @@ from numpy.typing import NDArray
 import uuid
 import asyncio
 
-from inner_thoughts_ai.models.enums import EventType
-from inner_thoughts_ai.utils.llm_api import get_completion, get_embedding_sync, get_embedding_async
+from thoughtful_agents.models.enums import EventType
+from thoughtful_agents.utils.llm_api import get_completion, get_embedding_sync, get_embedding_async
 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
-    from inner_thoughts_ai.models.participant import Participant
+    from thoughtful_agents.models.participant import Participant
 
 class Event:
     
@@ -204,7 +204,7 @@ class Conversation:
         """
         # Ensure pred_next_turn is set before broadcasting
         if not event.pred_next_turn:
-            from inner_thoughts_ai.utils.turn_taking_engine import predict_turn_taking_type
+            from thoughtful_agents.utils.turn_taking_engine import predict_turn_taking_type
             turn_allocation_type = await predict_turn_taking_type(self)
             # No need to set event.pred_next_turn as predict_turn_taking_type already does it
         
@@ -245,7 +245,7 @@ class Conversation:
             List of participants that are Agent instances
         """
         # Import Agent here to avoid circular imports
-        from inner_thoughts_ai.models.participant import Agent
+        from thoughtful_agents.models.participant import Agent
         
         return [participant for participant in self.participants if isinstance(participant, Agent)]
     

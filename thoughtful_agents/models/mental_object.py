@@ -2,8 +2,8 @@ import numpy as np  # type: ignore
 from typing import List, Optional, Union
 from numpy.typing import NDArray
 
-from inner_thoughts_ai.models.enums import MentalObjectType
-from inner_thoughts_ai.utils.llm_api import get_embedding_sync, get_embedding_async
+from thoughtful_agents.models.enums import MentalObjectType
+from thoughtful_agents.utils.llm_api import get_embedding_sync, get_embedding_async
 
 class MentalObject:
     def __init__(

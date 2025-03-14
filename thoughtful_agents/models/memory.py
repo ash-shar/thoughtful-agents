@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from inner_thoughts_ai.models.mental_object import MentalObject
-from inner_thoughts_ai.models.enums import MentalObjectType
+from thoughtful_agents.models.mental_object import MentalObject
+from thoughtful_agents.models.enums import MentalObjectType
 
 class Memory(MentalObject):
     """Memory class that inherits from MentalObject."""

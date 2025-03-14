@@ -4,14 +4,14 @@ import asyncio
 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
-    from inner_thoughts_ai.models.conversation import Conversation, Event
-    from inner_thoughts_ai.models.participant import Agent
+    from thoughtful_agents.models.conversation import Conversation, Event
+    from thoughtful_agents.models.participant import Agent
 
 # Import directly to fix the NameError
-from inner_thoughts_ai.models.participant import Participant
-from inner_thoughts_ai.models.conversation import Conversation
+from thoughtful_agents.models.participant import Participant
+from thoughtful_agents.models.conversation import Conversation
 
-from inner_thoughts_ai.utils.llm_api import get_completion
+from thoughtful_agents.utils.llm_api import get_completion
 
 async def predict_turn_taking_type(conversation: 'Conversation') -> str:
     """Predict turn-taking type based on the last 5 utterances.
@@ -109,7 +109,7 @@ async def decide_next_speaker_and_utterance(conversation: 'Conversation') -> Tup
 
     participant = conversation.get_participant_by_id(selected_thought.agent_id)
     # Articulate the thought
-    from inner_thoughts_ai.utils.thinking_engine import articulate_thought
+    from thoughtful_agents.utils.thinking_engine import articulate_thought
     utterance = await articulate_thought(selected_thought, conversation, agent=participant)
     
     # Return the next speaker and their utterance

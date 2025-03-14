@@ -4,12 +4,12 @@ In this example, we simulate a single turn in a conversation where a human speak
 """
 
 import asyncio
-from inner_thoughts_ai.models import (
+from thoughtful_agents.models import (
     Agent,
     Human,
     Conversation,
 )
-from inner_thoughts_ai.utils.turn_taking_engine import predict_turn_taking_type
+from thoughtful_agents.utils.turn_taking_engine import predict_turn_taking_type
 
 async def main():
     # Create a conversation with a simple context

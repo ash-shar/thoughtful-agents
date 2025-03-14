@@ -1,12 +1,12 @@
 from typing import List, Union, Optional, Dict, TYPE_CHECKING
 import uuid
 
-from inner_thoughts_ai.models.enums import MentalObjectType
-from inner_thoughts_ai.models.mental_object import MentalObject
+from thoughtful_agents.models.enums import MentalObjectType
+from thoughtful_agents.models.mental_object import MentalObject
 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
-    from inner_thoughts_ai.models.conversation import Event
+    from thoughtful_agents.models.conversation import Event
 
 class Thought(MentalObject):
     # _next_thought_id class variable removed as we're switching to UUID

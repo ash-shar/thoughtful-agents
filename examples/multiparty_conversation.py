@@ -23,12 +23,12 @@ import sys
 import os
 from typing import Optional
 
-from inner_thoughts_ai.models import (
+from thoughtful_agents.models import (
     Agent, 
     Conversation,
 )
-from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
-from inner_thoughts_ai.utils.llm_api import DEFAULT_COMPLETION_MODEL, DEFAULT_EMBEDDING_MODEL
+from thoughtful_agents.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
+from thoughtful_agents.utils.llm_api import DEFAULT_COMPLETION_MODEL, DEFAULT_EMBEDDING_MODEL
 
 async def run_conversation(num_turns: int = 5, verbose: bool = True):
     """

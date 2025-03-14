@@ -3,18 +3,18 @@ import random
 import asyncio
 import uuid
 
-from inner_thoughts_ai.models.enums import EventType, ParticipantType, MentalObjectType
-from inner_thoughts_ai.models.memory import Memory, MemoryStore
-from inner_thoughts_ai.models.thought import Thought, ThoughtReservoir
-from inner_thoughts_ai.models.conversation import Event, Conversation
-from inner_thoughts_ai.utils.thinking_engine import (
+from thoughtful_agents.models.enums import EventType, ParticipantType, MentalObjectType
+from thoughtful_agents.models.memory import Memory, MemoryStore
+from thoughtful_agents.models.thought import Thought, ThoughtReservoir
+from thoughtful_agents.models.conversation import Event, Conversation
+from thoughtful_agents.utils.thinking_engine import (
     generate_system1_thought,
     generate_system2_thoughts,
     evaluate_thought,
     articulate_thought
 )
-from inner_thoughts_ai.utils.saliency import recalibrate_all_saliency
-from inner_thoughts_ai.utils.text_splitter import SentenceSplitter
+from thoughtful_agents.utils.saliency import recalibrate_all_saliency
+from thoughtful_agents.utils.text_splitter import SentenceSplitter
 
 
 

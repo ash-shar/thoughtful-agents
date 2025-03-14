@@ -7,12 +7,12 @@ The AI uses intrinsic motivation to decide when to provide feedback.
 """
 
 import asyncio
-from inner_thoughts_ai.models import (
+from thoughtful_agents.models import (
     Agent,
     Human,
     Conversation,
 )
-from inner_thoughts_ai.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
+from thoughtful_agents.utils.turn_taking_engine import decide_next_speaker_and_utterance, predict_turn_taking_type
 
 async def main():
     # Create a conversation with context for practicing a lecture

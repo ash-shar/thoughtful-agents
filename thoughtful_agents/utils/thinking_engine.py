@@ -6,15 +6,15 @@ import numpy as np
 from numpy.typing import NDArray
 import math
 
-from inner_thoughts_ai.models.thought import Thought
-from inner_thoughts_ai.models.conversation import Conversation
-from inner_thoughts_ai.models.enums import MentalObjectType
-from inner_thoughts_ai.utils.llm_api import get_completion
+from thoughtful_agents.models.thought import Thought
+from thoughtful_agents.models.conversation import Conversation
+from thoughtful_agents.models.enums import MentalObjectType
+from thoughtful_agents.utils.llm_api import get_completion
 
 # Forward reference for Agent type
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from inner_thoughts_ai.models.participant import Agent
+    from thoughtful_agents.models.participant import Agent
 
 async def generate_system1_thought(
     conversation: Conversation,

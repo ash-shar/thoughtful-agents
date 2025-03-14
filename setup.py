@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="inner-thoughts-ai",
+    name="thoughtful-agents",
     version="0.1.0",
     packages=find_packages(),
     install_requires=[
@@ -15,7 +15,7 @@ setup(
     description="A framework for modeling agent thoughts and conversations",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/liubruce/inner-thoughts-ai",
+    url="https://github.com/liubruce/thoughtful-agents",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache 2.0 License",
