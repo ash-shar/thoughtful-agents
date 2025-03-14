@@ -1,0 +1,10 @@
+include LICENSE
+include README.md
+include PyPI_README.md
+include requirements.txt
+recursive-include scripts *.py
+recursive-include examples *.py
+recursive-include assets *
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .DS_Store 

@@ -1,5 +1,9 @@
 # Proactive Agents with Inner Thoughts 💭
 
+[![PyPI version](https://badge.fury.io/py/thoughtful-agents.svg)](https://badge.fury.io/py/thoughtful-agents)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
+
 A framework for modeling agent thoughts and conversations, enabling more natural and human-like interactions between multiple AI agents and humans.
 
 ## Overview
@@ -34,31 +38,48 @@ This approach models the distinction between *covert responses* (internal though
 
 ## Installation
 
-1. Install the package and its dependencies:
+### Option 1: Install from PyPI (Recommended)
+
+```bash
+pip install thoughtful-agents
+```
+
+### Option 2: Install from Source
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/liubruce/thoughtful-agents.git
+cd thoughtful-agents
+```
+
+2. Install the package and its dependencies:
 
 ```bash
 pip install -e .
 ```
 
-2. Download the required spaCy model:
+### Download Required spaCy Model
 
-```bash
-python scripts/download_spacy_model.py
-```
-
-Or manually:
+After installation, download the required spaCy model:
 
 ```bash
 python -m spacy download en_core_web_sm
 ```
 
-3. Set up your OpenAI API key:
+Or use the provided script:
+
+```bash
+python scripts/download_spacy_model.py
+```
+
+### Set up OpenAI API Key
 
 ```bash
 export OPENAI_API_KEY=your_api_key_here
 ```
 
-4. Customize LLM models (optional):
+### Customize LLM Models (Optional)
 
 ```bash
 # Customize the completion model (default: gpt-4o)
@@ -90,6 +111,16 @@ The project is organized as follows:
   - `ai_thought_process.py`: Detailed example showing the AI's thought process
   - `lecture_practice.py`: Example of an AI providing proactive feedback during a lecture practice
   - `multiparty_conversation.py`: Example of a multi-party conversation between three AI agents
+
+## Distribution
+
+The framework is available as a PyPI package:
+
+```bash
+pip install thoughtful-agents
+```
+
+PyPI Package: [https://pypi.org/project/thoughtful-agents/](https://pypi.org/project/thoughtful-agents/)
 
 ## Key Components
 
