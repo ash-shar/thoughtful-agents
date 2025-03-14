@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
 ## Documentation
 
-For more detailed documentation and examples, visit the [GitHub repository](https://github.com/liubruce/thoughtful-agents).
+For more detailed documentation and examples, visit the [GitHub repository](https://github.com/xybruceliu/thoughtful-agents).
 
 ## License
 

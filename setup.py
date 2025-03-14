@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="thoughtful-agents",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     install_requires=[
         "numpy>=1.20.0",
@@ -15,7 +15,7 @@ setup(
     description="A framework for modeling agent thoughts and conversations",
     long_description=open("PyPI_README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/liubruce/thoughtful-agents",
+    url="https://github.com/xybruceliu/thoughtful-agents",
     keywords="ai agents, conversational ai, llm, proactive ai, inner thoughts, cognitive architecture, multi-agent, nlp, natural language processing, conversation",
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -29,8 +29,8 @@ setup(
     ],
     python_requires=">=3.8",
     project_urls={
-        "Documentation": "https://github.com/liubruce/thoughtful-agents",
-        "Bug Reports": "https://github.com/liubruce/thoughtful-agents/issues",
-        "Source Code": "https://github.com/liubruce/thoughtful-agents",
+        "Documentation": "https://github.com/xybruceliu/thoughtful-agents",
+        "Bug Reports": "https://github.com/xybruceliu/thoughtful-agents/issues",
+        "Source Code": "https://github.com/xybruceliu/thoughtful-agents",
     },
 ) 

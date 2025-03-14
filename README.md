@@ -49,7 +49,7 @@ pip install thoughtful-agents
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/liubruce/thoughtful-agents.git
+git clone https://github.com/xybruceliu/thoughtful-agents.git
 cd thoughtful-agents
 ```
 
