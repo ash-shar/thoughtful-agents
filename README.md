@@ -6,6 +6,22 @@
 
 A framework for modeling agent thoughts and conversations, enabling more natural and human-like interactions between multiple AI agents and humans.
 
+## Table of Contents
+- [Overview](#overview)
+- [Research Background](#research-background)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Distribution](#distribution)
+- [Key Components](#key-components)
+- [Usage Examples](#usage-examples)
+  - [Basic Example](#basic-example)
+  - [Detailed Thought Process Example](#detailed-thought-process-example)
+  - [Lecture Practice Example](#lecture-practice-example)
+  - [Multi-Party Conversation Example](#multi-party-conversation-example)
+- [License](#license)
+- [Citation](#citation)
+- [Contact](#contact)
+
 ## Overview
 
 Thoughtful Agents provides a structured approach to modeling the internal thought processes of AI agents during conversations. Rather than simply predicting conversational turns, this framework enables proactive AI driven by its own internal "thoughts".
