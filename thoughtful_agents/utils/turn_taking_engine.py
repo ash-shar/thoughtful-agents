@@ -48,7 +48,8 @@ async def predict_turn_taking_type(conversation: 'Conversation') -> str:
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             temperature=0.7,  # Lower temperature for more deterministic results
-            model="ft:gpt-3.5-turbo-0125:personal::9Vu6HJKH", # Custom fine-tuned model for turn taking prediction
+            # model="ft:gpt-3.5-turbo-0125:personal::9Vu6HJKH", # Custom fine-tuned model for turn taking prediction
+            model="gpt-4o" # for public use
         )
         
         # Extract the turn allocation type from the response
